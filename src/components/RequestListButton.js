@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
-import {Button, Paper, Grid, Input} from 'material-ui'
-import Card, { CardActions, CardContent, CardMedia } from 'material-ui/Card';
-import {withStyles} from 'material-ui/styles';
+import {
+  Button, 
+  TextField,
+  Card,  
+  CardActions, 
+  CardContent
+} from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 const styles = (theme) => ({
   root: {
     width: '100%',
@@ -31,14 +36,12 @@ class RequestListButton extends Component {
     const {classes} = this.props
     return(
       <div className={classes.root}>
-      {
-        !requesting && <Button className={classes.root} onClick={this.toggelRequest}> Add a list...</Button>
-      }
-      {
-        requesting && 
+      {requesting ?
           <Card className={classes.card}>
             <CardContent classes={{root:classes.cardContentRoot}}>
-              <Input onChange={onChange} value={list_name} autoFocus className={classes.root} />
+            <form noValidate autoComplete="off">
+              <input onChange={onChange} value={list_name} autoFocus className={classes.root} />
+            </form>
             </CardContent>
             <CardActions>
               <Button onClick={onSubmit} size="small" color="primary">
@@ -49,6 +52,8 @@ class RequestListButton extends Component {
               </Button>
             </CardActions>
           </Card>
+        :
+        <Button className={classes.root} onClick={this.toggelRequest}> Add a list...</Button>
       }
       </div>
     )

@@ -1,55 +1,56 @@
 import React, { Component } from 'react';
-import {withStyles} from 'material-ui/styles';
-import { connect } from 'react-redux'
-import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
-import RequestListContainer from './containers/RequestListContainer';
+import {withStyles} from '@material-ui/core/styles';
+import TrelloLists from './containers/TrelloLists';
+import { connect } from 'react-redux';
+import PrimarySearchAppBar from './components/PrimarySearchAppBar';
+import SimpleDialogWrapped  from './components/SimpleDialog';
+import Zoom from '@material-ui/core/Zoom';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
 
 const styles = (theme) => ({
   root: {
     display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
     overflow: 'hidden',
     position:'absolute',
+    flexDirection: 'column',
     overflowX:'auto',
     width:'100%',
     height:'100%'
   },
-  gridList: {
-    flexWrap: 'nowrap',
-    width: '100%',
-    // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-    transform: 'translateZ(0)',
+  fab: {
+    position: 'absolute',
+    bottom: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
   },
-  gridListTile:{
-    height:'100%'
-  }
 });
-
 class App extends Component {
-  state={
-    lists:[
-      {component:<RequestListContainer />},
-    ]
-  }
+  state={open: false}
+  handleClickOpen = () => this.setState({open: true,});
+  handleSubmit = value => this.props.createNewList(value);
+  handleClose = value => this.setState({open: false });
   render() {
-    const {classes, lists} = this.props;
+    const {classes, theme} = this.props;
+    const transitionDuration = {
+      enter: theme.transitions.duration.enteringScreen,
+      exit: theme.transitions.duration.leavingScreen,
+    };
     return (
       <div className={classes.root}>
-        <GridList cellHeight={'auto'} className={classes.gridList} spacing={24} cols={6}>
-          {
-            lists.map((list, index) => ( <GridListTile classes={{root:classes.gridListTile}} key={index}><list.component data={list.data} /> </GridListTile>  ))
-          }
-        </GridList>
+        <PrimarySearchAppBar />
+        <TrelloLists />
+        <Zoom  in={true} timeout={transitionDuration} style={{transitionDelay: `${transitionDuration.exit}ms`,}} unmountOnExit>
+          <Fab onClick={this.handleClickOpen} className={classes.fab} color={'primary'}><AddIcon /></Fab>
+        </Zoom>
+        <SimpleDialogWrapped open={this.state.open} onSubmit={this.handleSubmit} onClose={this.handleClose} />
       </div>
     );
   }
 }
-
-const mapStateToProps = state =>{
+const mapDispatchToProps = dispatch =>{
   return {
-    lists:state.config.lists
+    createNewList:( name ) => dispatch({ type: 'REQUEST_NEW_LIST', payload: name })
   }
 }
 
-export default withStyles(styles)(connect(mapStateToProps)(App));
+export default withStyles(styles, { withTheme: true })(connect(null, mapDispatchToProps)(App));

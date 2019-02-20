@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import {Button, Paper, Grid, Input} from 'material-ui'
-import Card, { CardActions, CardContent, CardHeader } from 'material-ui/Card';
-import MoreVertIcon from 'material-ui-icons/MoreVert';
-import IconButton from 'material-ui/IconButton';
-import {withStyles} from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import {
+  Typography,
+  IconButton,
+  Button,
+  Input,
+  Card, CardActions, CardContent, CardHeader
+} from '@material-ui/core'
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import {withStyles} from '@material-ui/core/styles';
 const styles = (theme) => ({
   root: {
     width: '100%',
+    maxWidth:250
   },
   cardContentRoot:{
     padding: 4
@@ -43,17 +47,17 @@ class ListComponent extends Component {
     this.setState({ card_title:event.target.value })
   }
   onSubmit = event => {
-    this.props.onSubmit && this.props.onSubmit( this.state.card_title)
+    const {card_title} = this.state;
+    this.props.onSubmit && this.setState({ card_title:'' },()=>this.props.onSubmit(card_title))
     this.toggelRequest(event);
   }
   onDragEnd = result => {
-    // the only one that is required
     this.props.onUpdateCardPosition(result)
   };
   render(){
     const {requesting, card_title} = this.state
     const {onChange, onSubmit, onCancel, toggelRequest} = this
-    const {label, classes,cards} = this.props
+    const {id, label, classes,cards, droppableId} = this.props;
     return(
       <div className={classes.root}>
         <Card className={classes.card}>
@@ -62,8 +66,8 @@ class ListComponent extends Component {
             title={label}
           />
           <CardContent classes={{root:classes.cardContentRoot}}>
-            <DragDropContext onDragEnd={this.onDragEnd}>
-              <Droppable droppableId="droppable">
+
+              <Droppable droppableId={droppableId} type='card'>
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
@@ -71,9 +75,9 @@ class ListComponent extends Component {
                 >
                 {
                   cards && cards.map((card,index) => 
-                    <Draggable key={card.card_id} draggableId={card.card_id} index={index}>
+                    <Draggable key={index} draggableId={card.card_id} index={index}>
                     {(provided, snapshot) => (
-                      <div>
+                      <div style={{width:200}}>
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
@@ -94,9 +98,8 @@ class ListComponent extends Component {
                 </div>
               )}
               </Droppable>
-            </DragDropContext>
             {
-              requesting &&  <Input multiline={true} rows={5} onChange={onChange} value={card_title} autoFocus className={classes.root} />
+              requesting &&  <input onChange={onChange} value={card_title} autoFocus className={classes.root} />
             }
           </CardContent>
           {
